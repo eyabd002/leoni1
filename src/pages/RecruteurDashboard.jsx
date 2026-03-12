@@ -10,23 +10,22 @@ const statutConfig = {
   "Planifiée": { bg: "#f3f4f6", color: "#6b7280" },
 };
 
-export default function MissionsPage() {
+export default function RecruteurDashboard() {
   const navigate = useNavigate();
   const { missions } = useMissions();
   const [ville, setVille] = useState("Toutes les villes");
-  const [date,  setDate]  = useState("");
 
-  const filtered = missions.filter(m =>
-    (ville === "Toutes les villes" || m.ville === ville) &&
-    (date === "" || m.date.includes(date))
-  );
+  const filtered   = missions.filter(m => ville === "Toutes les villes" || m.ville === ville);
+  const terminées  = missions.filter(m => m.statut === "Terminée").length;
+  const enCours    = missions.filter(m => m.statut === "En cours").length;
+  const planifiées = missions.filter(m => m.statut === "Planifiée").length;
 
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
         <div>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>Gestion des Missions</h2>
-          <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 3 }}>Gérez les missions de recrutement</p>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)" }}>Tableau de Bord — Recruteur</h2>
+          <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 3 }}>Gestion des missions de recrutement</p>
         </div>
         <button onClick={() => navigate("/missions/create")} style={{
           display: "flex", alignItems: "center", gap: 6,
@@ -41,25 +40,27 @@ export default function MissionsPage() {
         </button>
       </div>
 
-      {/* Filters */}
-      <div style={{ background: "#fff", border: "1px solid var(--border)", borderRadius: 10, padding: "16px 20px", marginBottom: 20 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-          <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)" }}>Filtres</span>
-        </div>
-        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-end" }}>
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <label style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)", display: "block", marginBottom: 5 }}>Ville</label>
-            <select value={ville} onChange={e => setVille(e.target.value)} style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border)", borderRadius: 7, fontSize: 13, background: "#fff", outline: "none" }}>
-              {villes.map(v => <option key={v}>{v}</option>)}
-            </select>
+      {/* Stats */}
+      <div style={{ display: "flex", gap: 14, marginBottom: 24, flexWrap: "wrap" }}>
+        {[
+          { label: "Total Missions", value: missions.length, color: "#2563eb", bg: "#eff6ff", border: "#bfdbfe" },
+          { label: "Terminées",      value: terminées,       color: "#16a34a", bg: "#dcfce7", border: "#bbf7d0" },
+          { label: "En cours",       value: enCours,         color: "#d97706", bg: "#fffbeb", border: "#fde68a" },
+          { label: "Planifiées",     value: planifiées,      color: "#6b7280", bg: "#f9fafb", border: "#e5e7eb" },
+        ].map(c => (
+          <div key={c.label} style={{ background: c.bg, border: `1px solid ${c.border}`, borderRadius: 10, padding: "16px 20px", flex: "1 1 120px" }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: c.color, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>{c.label}</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: c.color }}>{c.value}</div>
           </div>
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <label style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)", display: "block", marginBottom: 5 }}>Date</label>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border)", borderRadius: 7, fontSize: 13, background: "#fff", outline: "none" }} />
-          </div>
-          <button onClick={() => { setVille("Toutes les villes"); setDate(""); }} style={{ padding: "7px 16px", borderRadius: 7, border: "1px solid var(--border)", background: "#f9fafb", color: "var(--text-secondary)", fontSize: 12, fontWeight: 500, height: 34, cursor: "pointer" }}>Réinitialiser</button>
-        </div>
+        ))}
+      </div>
+
+      {/* Filter */}
+      <div style={{ background: "#fff", border: "1px solid var(--border)", borderRadius: 10, padding: "14px 18px", marginBottom: 18, display: "flex", alignItems: "center", gap: 14 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)" }}>Ville:</span>
+        <select value={ville} onChange={e => setVille(e.target.value)} style={{ padding: "6px 10px", border: "1px solid var(--border)", borderRadius: 7, fontSize: 13, background: "#fff", outline: "none" }}>
+          {villes.map(v => <option key={v}>{v}</option>)}
+        </select>
       </div>
 
       {/* Table */}
@@ -67,7 +68,7 @@ export default function MissionsPage() {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ background: "#f9fafb", borderBottom: "1px solid var(--border)" }}>
-              {["ID MISSION","DATE","VILLE","RESPONSABLE","TRANSPORT","OBJECTIF","STATUT","ACTIONS"].map(h => (
+              {["ID","DATE","VILLE","RESPONSABLE","TRANSPORT","OBJECTIF","STATUT","ACTIONS"].map(h => (
                 <th key={h} style={{ padding: "11px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "var(--text-muted)", letterSpacing: "0.08em", textTransform: "uppercase" }}>{h}</th>
               ))}
             </tr>
@@ -91,7 +92,7 @@ export default function MissionsPage() {
                     <span style={{ background: sc.bg, color: sc.color, borderRadius: 6, padding: "3px 10px", fontSize: 12, fontWeight: 600 }}>{m.statut}</span>
                   </td>
                   <td style={{ padding: "13px 16px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                       <button title="Voir" style={{ background: "none", border: "none", color: "#6b7280", cursor: "pointer" }}>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                       </button>
