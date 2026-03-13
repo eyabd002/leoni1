@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import { MissionsProvider } from "./context/MissionsContext.jsx";
+import { RecrutementsProvider } from "./context/RecrutementsContext.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import Navbar from "./components/Navbar.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
@@ -13,6 +14,7 @@ import RecruteurDashboard from "./pages/RecruteurDashboard.jsx";
 import ContratsDashboard from "./pages/ContratsDashboard.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import CreateMissionPage from "./pages/CreateMissionPage.jsx";
+import CandidatsPage from "./pages/CandidatsPage.jsx";
 import "./App.css";
 
 function ProtectedRoute({ children, allowedRoles }) {
@@ -49,6 +51,9 @@ function AppLayout() {
             <Route path="/missions/create" element={
               <ProtectedRoute allowedRoles={["admin","recruteur"]}><CreateMissionPage /></ProtectedRoute>
             } />
+            <Route path="/candidats" element={
+              <ProtectedRoute allowedRoles={["admin","recruteur"]}><CandidatsPage /></ProtectedRoute>
+            } />
             <Route path="/contracts" element={
               <ProtectedRoute allowedRoles={["admin","contrats"]}>
                 {user.role === "contrats" ? <ContratsDashboard /> : <ContractsPage />}
@@ -79,10 +84,12 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <MissionsProvider>
+          <RecrutementsProvider>
           <Routes>
             <Route path="/login" element={<LoginPageWrapper />} />
             <Route path="/*"    element={<AppLayout />} />
           </Routes>
+          </RecrutementsProvider>
         </MissionsProvider>
       </AuthProvider>
     </BrowserRouter>
